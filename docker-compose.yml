@@ -1,0 +1,105 @@
+---
+version: '2'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:${TAG}
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      KAFKA_OPTS: -Dzookeeper.4lw.commands.whitelist=*
+
+  broker1:
+    image: confluentinc/cp-kafka:${TAG}
+    hostname: broker1
+    container_name: broker1
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 101
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_BROKER_RACK: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker1:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_REPLICA_SELECTOR_CLASS : org.apache.kafka.common.replica.RackAwareReplicaSelector
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=TRACE,kafka.request.logger=WARN,kafka.server.ReplicaManager=DEBUG"
+
+  broker2:
+    image: confluentinc/cp-kafka:${TAG}
+    hostname: broker2
+    container_name: broker2
+    depends_on:
+      - zookeeper
+    ports:
+      - "29093:29093"
+    environment:
+      KAFKA_BROKER_ID: 102
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_BROKER_RACK: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9092,PLAINTEXT_HOST://localhost:29093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_REPLICA_SELECTOR_CLASS : org.apache.kafka.common.replica.RackAwareReplicaSelector
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=TRACE,kafka.request.logger=WARN,kafka.server.ReplicaManager=DEBUG"
+
+  broker3:
+    image: confluentinc/cp-kafka:${TAG}
+    hostname: broker3
+    container_name: broker3
+    depends_on:
+      - zookeeper
+    ports:
+      - "29094:29094"
+    environment:
+      KAFKA_BROKER_ID: 201
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_BROKER_RACK: 2
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9092,PLAINTEXT_HOST://localhost:29094
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_REPLICA_SELECTOR_CLASS : org.apache.kafka.common.replica.RackAwareReplicaSelector
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=TRACE,kafka.request.logger=WARN,kafka.server.ReplicaManager=DEBUG"
+  
+  broker4:
+    image: confluentinc/cp-kafka:${TAG}
+    hostname: broker4
+    container_name: broker4
+    depends_on:
+      - zookeeper
+    ports:
+      - "29095:29095"
+    environment:
+      KAFKA_BROKER_ID: 202
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_BROKER_RACK: 2
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker4:9092,PLAINTEXT_HOST://localhost:29095
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_REPLICA_SELECTOR_CLASS : org.apache.kafka.common.replica.RackAwareReplicaSelector
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=TRACE,kafka.request.logger=WARN,kafka.server.ReplicaManager=DEBUG"
+  schema-registry:
+    image: confluentinc/cp-schema-registry:${TAG}
+    hostname: schema-registry
+    depends_on:
+      - zookeeper
+      - broker1
+      - broker2
+      - broker3
+    ports:
+      - '8081:8081'
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker1:9092'
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
