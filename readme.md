@@ -85,7 +85,7 @@ docker compose exec broker3 kafka-consumer-perf-test --topic topic1 \
     --consumer.config /etc/kafka/rack2.conf
 ```
 
-###Describe the consumer group assignment
+### Describe the consumer group assignment
 ```shell
 docker-compose exec broker1 kafka-consumer-groups \
   --bootstrap-server broker1:9092 \
